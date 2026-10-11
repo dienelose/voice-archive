@@ -68,6 +68,16 @@ Windows용 CTranslate2 4.6.0이 필요로 하는 `pkg_resources`는 최신 setup
 
 `Whisper OK`가 나오면 `start.bat`을 다시 실행합니다. 전체 설치 갱신 시에는 최신 requirements 파일을 사용하세요.
 
+### open() got an unexpected keyword argument 'metadata_errors'
+
+faster-whisper 1.2.1의 오디오 디코더와 PyAV 19의 API가 호환되지 않는 문제입니다. 실제 WAV 디코딩으로 오류를 재현했고, PyAV 16.0.1에서 WAV·MP3 디코딩과 내장 VAD 동작을 검증했습니다. 앱을 종료하고 프로젝트 폴더에서 실행한 뒤 다시 시작하세요.
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install "av==16.0.1" "setuptools==80.9.0"
+```
+
+최신 `requirements-transcription.txt`에는 두 호환 버전이 고정되어 있습니다.
+
 ## 처음 사용할 때
 
 1. 환경 설정에서 FFmpeg, Whisper 패키지·모델, Ollama 연결·선택 모델 상태를 확인합니다.

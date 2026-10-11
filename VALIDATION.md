@@ -5,7 +5,7 @@
 ## 통과
 
 - `bash scripts/setup.sh`: 의존성 설치와 테스트 실행 성공. 기존 가상환경에서 다시 실행 가능함을 확인.
-- `python -m pytest -q`: **18개 통과**.
+- `python -m pytest -q`: **21개 통과**.
 - `python scripts/browser_smoke.py`: 실제 Chromium 브라우저 검증 통과, JavaScript 페이지 오류 없음.
 - `node --check app/static/app.js`: JavaScript 문법 검사 통과.
 - 실제 서버 시작, 홈페이지 HTTP 200, 상태 API, 비어 있는 실제 녹음 보관함 확인.
@@ -25,6 +25,7 @@
 - 같은 출처 변경 요청, 로컬 Host 제한, 모델 누락 시 구체적 오류 표시.
 - Windows 실행 파일의 ASCII·CRLF 형식과 배포 ZIP 안의 바이트 보존. Windows cmd.exe 자체의 실행 검증은 별도 대상.
 - `setuptools==80.9.0`에서 `pkg_resources`와 Whisper를 새 Python 프로세스에서 불러오는 검사 통과. Windows CTranslate2 의존 모듈 누락의 재발 방지를 위한 검사이며 Windows GPU 추론 검사는 아님.
+- PyAV 19.0.1에서 `metadata_errors` 오류 재현. PyAV 16.0.1로 고정한 뒤 실제 Whisper 디코더의 WAV·MP3 디코딩 및 16kHz 변환, 내장 ONNX VAD의 무음 처리 검사 통과. 대형 Whisper 모델 추론 없이 실행한 오디오 입력 계층 검사.
 - 1440px 데스크톱과 390px 모바일 레이아웃, 가로 넘침 없음.
 
 ## 아직 검증하지 않은 항목
