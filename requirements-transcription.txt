@@ -1,3 +1,6 @@
 -r requirements.txt
 faster-whisper==1.2.1
 ctranslate2==4.6.0
+# The Windows CTranslate2 4.6.0 wheel imports pkg_resources at startup.
+# Newer setuptools releases remove that module.
+setuptools==80.9.0

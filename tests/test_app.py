@@ -276,3 +276,16 @@ def test_windows_launcher_survives_distribution_zip():
     with zipfile.ZipFile(root / 'dist' / 'voice-archive-windows.zip') as archive:
         assert archive.read('voice-archive/start.bat') == launcher
         assert 'voice-archive/.gitattributes' in archive.namelist()
+
+
+def test_transcription_runtime_imports_in_fresh_process():
+    """Windows CT2 imports pkg_resources even when the Linux wheel does not."""
+    root = Path(__file__).resolve().parents[1]
+    result = subprocess.run(
+        [sys.executable, '-c',
+         'import pkg_resources; from app.worker import bootstrap_cuda; bootstrap_cuda(); '
+         'from faster_whisper import WhisperModel; print("Whisper OK")'],
+        cwd=root, capture_output=True, text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    assert 'Whisper OK' in result.stdout

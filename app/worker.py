@@ -141,7 +141,7 @@ class Worker:
             bootstrap_cuda()
             from faster_whisper import WhisperModel
         except ImportError as exc:
-            raise RuntimeError('음성인식 패키지가 없습니다. requirements-ai.txt를 설치해 주세요.') from exc
+            raise RuntimeError('음성인식 패키지를 불러오지 못했습니다. requirements-ai.txt로 설치를 갱신해 주세요. 상세 원인: ' + str(exc)) from exc
         folder = self.db.root / 'recordings' / project_id
         pcm = folder / 'working.wav'
         self.db.update_project(project_id, status='converting', error='', message='분석용 오디오를 준비하고 있습니다.')

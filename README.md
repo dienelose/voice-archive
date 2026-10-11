@@ -57,6 +57,17 @@ ZIP 전체를 먼저 압축 해제한 뒤, `start.bat`과 `scripts` 폴더가 �
 .\.venv\Scripts\python.exe .\scripts\run.py
 ```
 
+### No module named 'pkg_resources'
+
+Windows용 CTranslate2 4.6.0이 필요로 하는 `pkg_resources`는 최신 setuptools에서 제거되었습니다. 프로젝트는 이 모듈을 제공하는 `setuptools==80.9.0`을 고정합니다. 기존 설치에서 이 오류가 발생하면 앱을 종료하고 프로젝트 폴더의 PowerShell에서 실행하세요.
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install setuptools==80.9.0
+.\.venv\Scripts\python.exe -c "from app.worker import bootstrap_cuda; bootstrap_cuda(); from faster_whisper import WhisperModel; print('Whisper OK')"
+```
+
+`Whisper OK`가 나오면 `start.bat`을 다시 실행합니다. 전체 설치 갱신 시에는 최신 requirements 파일을 사용하세요.
+
 ## 처음 사용할 때
 
 1. 환경 설정에서 FFmpeg, Whisper 패키지·모델, Ollama 연결·선택 모델 상태를 확인합니다.
