@@ -1,6 +1,7 @@
 """One background worker: audio and local language models never share the GPU."""
 import gc
 import json
+import logging
 import math
 import os
 import queue
@@ -57,6 +58,12 @@ def read_peaks(path: Path, count=180):
             samples = array('h', data)
             values.append(round(math.sqrt(sum(s * s for s in samples) / max(1, len(samples))) / 32768, 4))
     return values
+
+
+def pcm_to_float32(data):
+    """FFmpeg already decoded mono 16-kHz PCM; do not decode it again with PyAV."""
+    import numpy as np
+    return np.frombuffer(data, dtype='<i2').astype(np.float32) / np.float32(32768.0)
 
 
 def snapshot(project, segments):
@@ -119,6 +126,7 @@ class Worker:
                 else:
                     self.generate(identifier, options)
             except Exception as exc:
+                logging.getLogger(__name__).exception('Background %s job failed (%s)', kind, identifier)
                 message = str(exc)[:1200]
                 if kind == 'transcribe':
                     self.db.update_project(identifier, status='error', error=message, message='처리가 멈췄습니다. 설정을 확인한 뒤 이어서 처리해 주세요.')
@@ -161,6 +169,8 @@ class Worker:
                              local_files_only=True, cpu_threads=max(1, min(8, (os.cpu_count() or 4) - 1)))
         try:
             with wave.open(str(pcm)) as audio:
+                if (audio.getnchannels(), audio.getsampwidth(), audio.getframerate()) != (1, 2, 16000):
+                    raise RuntimeError('분석용 오디오 형식이 올바르지 않습니다. mono/16bit/16kHz PCM이 필요합니다.')
                 duration = audio.getnframes() / audio.getframerate()
                 total = math.ceil(duration / CHUNK_SECONDS)
                 for chunk in range(project['next_chunk'], total):
@@ -174,14 +184,10 @@ class Worker:
                     self.db.update_project(project_id, status='transcribing', progress=core_start / duration,
                                            message=f'음성인식 중 · {chunk + 1}/{total} 구간')
                     audio.setpos(round(start * 16000))
-                    chunk_path = folder / 'chunk.wav'
-                    with wave.open(str(chunk_path), 'wb') as output:
-                        output.setnchannels(1)
-                        output.setsampwidth(2)
-                        output.setframerate(16000)
-                        output.writeframes(audio.readframes(round((end - start) * 16000)))
+                    # Supported ndarray input bypasses faster-whisper's av.open path.
+                    chunk_audio = pcm_to_float32(audio.readframes(round((end - start) * 16000)))
                     prompt = project['terms'].strip()[:400]
-                    results, _ = model.transcribe(str(chunk_path), language='ko', task='transcribe', beam_size=5,
+                    results, _ = model.transcribe(chunk_audio, language='ko', task='transcribe', beam_size=5,
                                                   initial_prompt=prompt or None, word_timestamps=True,
                                                   vad_filter=True, vad_parameters={'min_silence_duration_ms': 700},
                                                   condition_on_previous_text=True)
@@ -209,7 +215,7 @@ class Worker:
                     with self.db.connect() as db:
                         db.executemany('INSERT INTO segments(project_id,start,end,original_text,text,flags) VALUES(?,?,?,?,?,?)', rows)
                         db.execute('UPDATE projects SET next_chunk=?,progress=? WHERE id=?', (chunk + 1, core_end / duration, project_id))
-                    chunk_path.unlink(missing_ok=True)
+                    del chunk_audio
         finally:
             del model
             gc.collect()

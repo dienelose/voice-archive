@@ -187,8 +187,12 @@ def test_transcription_checkpoint_retries_without_duplicates(client, monkeypatch
         def __init__(self, *args, **kwargs):
             assert kwargs['local_files_only'] is True
 
-        def transcribe(self, path, **kwargs):
-            calls.append(path)
+        def transcribe(self, audio, **kwargs):
+            import numpy as np
+            assert isinstance(audio, np.ndarray)
+            assert audio.dtype == np.float32 and audio.ndim == 1
+            assert len(audio) == 16000
+            calls.append(audio)
             if len(calls) == 2:
                 raise RuntimeError('simulated interruption')
             word = types.SimpleNamespace(word=' 테스트', start=0.1, end=0.8)
