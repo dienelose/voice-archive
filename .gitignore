@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+data/
+models/
+.env
+.coverage
+test-results/
+playwright-report/
+dist/

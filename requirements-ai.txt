@@ -1,0 +1,3 @@
+-r requirements-transcription.txt
+nvidia-cublas-cu12==12.8.4.1
+nvidia-cudnn-cu12==9.10.2.21

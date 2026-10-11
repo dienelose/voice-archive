@@ -1,0 +1,2 @@
+-r requirements-ai.txt
+pyannote.audio==4.0.7

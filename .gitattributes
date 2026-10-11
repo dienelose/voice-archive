@@ -1,0 +1,2 @@
+# Preserve Windows launcher bytes in GitHub ZIP downloads and Git checkouts.
+*.bat -text whitespace=cr-at-eol

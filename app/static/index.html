@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#155c51">
+  <meta name="description" content="내 PC에서 안전하게 듣고, 고치고, 정리하는 개인용 녹취 작업 공간">
+  <title>목소리 기록실 — 로컬 녹취 작업 공간</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='12' fill='%23155c51'/%3E%3Cpath d='M12 16v8m8-14v20m8-14v8' stroke='white' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/styles.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">본문으로 이동</a>
+  <div id="app"><main class="loading-screen">기록실을 열고 있습니다…</main></div>
+  <div id="player" hidden></div>
+  <audio id="audio" preload="metadata"></audio>
+  <dialog id="modal" aria-labelledby="modal-title"></dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
